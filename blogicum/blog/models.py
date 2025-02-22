@@ -74,6 +74,12 @@ class Post(PublishMetaModel, TitleModel):
         null=False,
         verbose_name='Текст'
     )
+    image = models.ImageField(
+        verbose_name='Изображение',
+        upload_to='images',
+        null=True,
+        blank=True
+    )
     pub_date = models.DateTimeField(
         blank=False, null=False, verbose_name='Дата и время публикации',
         help_text='Если установить дату и время в '
@@ -88,7 +94,7 @@ class Post(PublishMetaModel, TitleModel):
     location = models.ForeignKey(
         Location,
         on_delete=models.SET_NULL,
-        related_name='post_location',
+        related_name='posts',
         null=True,
         blank=True,
         verbose_name='Местоположение'
@@ -96,7 +102,7 @@ class Post(PublishMetaModel, TitleModel):
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
-        related_name='post_category',
+        related_name='posts',
         null=True,
         verbose_name='Категория'
     )
@@ -107,3 +113,32 @@ class Post(PublishMetaModel, TitleModel):
 
     def __str__(self):
         return self.title
+
+
+class Comment(PublishMetaModel):
+    text = models.TextField(verbose_name='Текст')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+        related_name='comments'
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        verbose_name='Комментарий',
+        related_name='comments'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Добавлено'
+    )
+
+    class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарий'
+        ordering = ('created_at',)
+
+    def __str__(self):
+        text = str(self.text)
+        return text[:20]
